@@ -1,0 +1,8 @@
+purdyCommonTask is a ant macro file use to help create a quick build system using:
+1) java
+2) groovy
+3) javadocs
+4) groovydocs
+5) emma
+6) cobertura
+

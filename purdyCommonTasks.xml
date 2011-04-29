@@ -1,0 +1,310 @@
+<?xml version="1.0"?>
+<project name="purdyCommonTasks">
+   <taskdef name="groovyc"   classname="org.codehaus.groovy.ant.Groovyc"   classpath="${lib.dir}/groovy-all-${groovyAllJar.version}.jar" />
+   <taskdef name="groovydoc" classname="org.codehaus.groovy.ant.Groovydoc" classpath="${lib.dir}/groovy-all-${groovyAllJar.version}.jar" />
+   
+   <macrodef name="common.clean">
+      <attribute name="build.dir" default="build"/>
+      <sequential>
+         <echo>Deleting [@{build.dir}]</echo>
+         <delete dir="@{build.dir}"/>
+      </sequential>
+   </macrodef>
+   <macrodef name="common.compile">
+      <attribute name="src.dir" default="src"/>
+      <attribute name="lib.dir" default="lib"/>
+      <attribute name="build.src.dir" default="build/src"/>
+      <attribute name="build.lib.dir" default="build/lib"/>
+      <attribute name="build.classes.dir" default="build/classes"/>
+      <attribute name="build.test.classes.dir" default="build/testClasses"/>
+      <sequential>
+         <!-- create build.src.dir, build.lib.dir, build.classes dir if !exists -->
+         <mkdir dir="@{build.src.dir}"/>
+         <mkdir dir="@{build.lib.dir}"/>
+         <mkdir dir="@{build.classes.dir}"/>
+         <echo>Copying source from [@{src.dir}] into [@{build.src.dir}]</echo>
+         <!-- copy src.dir into build.src.dir -->
+         <copy todir="@{build.src.dir}">
+            <fileset dir="@{src.dir}">
+               <include name="**/*"/>
+            </fileset>
+         </copy>
+         <echo>Copying jars from [@{lib.dir}] into [@{build.lib.dir}]</echo>
+         <!-- copy lib.dir into build.lib.dir -->
+         <copy todir="@{build.lib.dir}">
+            <fileset dir="@{lib.dir}">
+               <include name="**/*.jar"/>
+            </fileset>
+         </copy>
+         <echo>Compiling code in [@{build.src.dir}] into [@{build.classes.dir}]</echo>
+         <!-- compile source -->
+         <groovyc srcdir="@{build.src.dir}" destdir="@{build.classes.dir}" stacktrace="true">
+            <classpath>
+               <pathelement location="${basedir}"/>
+               <fileset dir="@{build.lib.dir}">
+                  <include name="**/*.jar"/>
+               </fileset>
+            </classpath>
+            <javac source="1.6" target="1.6" debug="on" />
+         </groovyc>
+      </sequential>
+   </macrodef>
+   <macrodef name="common.jarArtifact">
+      <attribute name="artifactName" default="artifact"/>
+      <attribute name="build.src.dir" default="build/src"/>
+      <attribute name="build.classes.dir" default="build/classes"/>
+      <attribute name="build.artifacts.dir" default="build/artifacts"/>
+      <sequential>
+         <!-- create build.artifacts.dir dir if !exists -->
+         <mkdir dir="@{build.artifacts.dir}"/>
+         <echo>Creating jar file from [@{build.src.dir}] into [@{build.artifacts.dir}]</echo>
+         <!-- create source jar -->
+         <jar jarfile="@{build.artifacts.dir}/@{artifactName}-source.jar" basedir="@{build.src.dir}" />
+         <echo>Creating jar file from [@{build.classes.dir}] into [@{build.artifacts.dir}]</echo>
+         <!-- create classes jar -->
+         <jar jarfile="@{build.artifacts.dir}/@{artifactName}.jar" basedir="@{build.classes.dir}" />
+      </sequential>
+   </macrodef>
+   <macrodef name="common.log4j">
+      <attribute name="log4jPath"/>
+      <attribute name="build.lib.dir" default="build/lib"/>
+      <sequential>
+         <echo>Copying log4j.xml from [@{log4jPath}] into [@{build.lib.dir}]</echo>
+         <!-- copy log4j.xml from log4jPath into build.src.dir -->
+         <copy file="@{log4jPath}" tofile="@{build.lib.dir}/log4j.xml" overwrite="true" />
+      </sequential>
+   </macrodef>
+   <macrodef name="common.groovyDocs">
+      <attribute name="build.src.dir" default="build/src"/>
+      <attribute name="build.groovyDocs.dir" default="build/groovyDocs"/>
+      <attribute name="packageNames" default="**.*" />
+      <sequential>
+         <!-- create build.groovyDocs.dir if !exists -->
+         <mkdir dir="@{build.groovyDocs.dir}"/>
+         <groovydoc packagenames="@{packageNames}" destdir="@{build.groovyDocs.dir}" sourcepath="@{build.src.dir}" use="true" private="true">
+            <link packages="java.,org.xml.,javax.,org.xml." href="http://java.sun.com/j2se/1.6.0/docs/api"/>
+            <link packages="org.apache.ant.,org.apache.tools.ant." href="http://www.dpml.net/api/ant/1.7.0"/>
+            <link packages="org.junit.,junit.framework." href="http://unit.sourceforge.net/javadoc/"/>
+            <link packages="groovy.,org.codehaus.groovy." href="http://groovy.codehaus.org/api/"/>
+         </groovydoc>
+      </sequential>
+   </macrodef>
+   <macrodef name="common.javaDocs">
+      <attribute name="build.src.dir" default="build/src"/>
+      <attribute name="build.javaDocs.dir" default="build/javaDocs"/>
+      <attribute name="packageNames" default="**.*" />
+      <sequential>
+         <!-- create build.javaDocs.dir if !exists -->
+         <mkdir dir="@{build.javaDocs.dir}"/>
+         <javadoc packagenames="@{packageNames}" destdir="@{build.javaDocs.dir}" sourcepath="@{build.src.dir}" use="true" private="true" linksource="true">
+         </javadoc>
+      </sequential>
+   </macrodef>
+   <macrodef name="common.test.compile">
+      <attribute name="test.src.dir" default="test"/>
+      <attribute name="build.classes.dir" default="build/classes"/>
+      <attribute name="build.test.src.dir" default="build/testSrc"/>
+      <attribute name="build.test.classes.dir" default="build/testClasses"/>
+      <attribute name="build.lib.dir" default="build/lib"/>
+      <sequential>
+         <!-- create build.test.src.dir and build.test.classes dir if !exists -->
+         <mkdir dir="@{build.test.src.dir}"/>
+         <mkdir dir="@{build.test.classes.dir}"/>
+         <echo>Copying test source from [@{test.src.dir}] into [@{build.test.src.dir}]</echo>
+         <!-- copy test.src.dir into build.test.src.dir -->
+         <copy todir="@{build.test.src.dir}">
+            <fileset dir="@{test.src.dir}">
+               <include name="**/*"/>
+            </fileset>
+         </copy>
+         <echo>Compiling tests in [@{build.test.src.dir}] into [@{build.test.classes.dir}]</echo>
+         <!-- compile tests -->
+         <groovyc srcdir="@{build.test.src.dir}" destdir="@{build.test.classes.dir}" stacktrace="true">
+            <classpath>
+               <pathelement location="@{build.classes.dir}"/>
+               <pathelement location="@{basedir}"/>
+               <fileset dir="@{build.lib.dir}">
+                  <include name="**/*.jar"/>
+               </fileset>
+            </classpath>
+            <javac source="1.6" target="1.6" debug="on" />
+         </groovyc>
+      </sequential>
+   </macrodef>
+   <macrodef name="common.test.junit">
+      <attribute name="build.classes.dir" default="build/classes"/>
+      <attribute name="build.test.classes.dir" default="build/testClasses"/>
+      <attribute name="build.lib.dir" default="build/lib"/>
+      <attribute name="build.reports.dir" default="build/reports"/>
+      <sequential>
+         <!-- create build.reports.dir/junit/**/* if !exists -->
+         <mkdir dir="@{build.reports.dir}"/>
+         <mkdir dir="@{build.reports.dir}/junit"/>
+         <mkdir dir="@{build.reports.dir}/junit/xml"/>
+         <junit failureProperty="test.failed" printsummary="yes" haltonfailure="yes" showoutput="true" dir="test" fork="yes">
+            <classpath>
+               <fileset dir="@{build.lib.dir}"/>
+               <pathelement location="@{build.classes.dir}"/>
+               <pathelement location="@{build.test.classes.dir}"/>
+            </classpath>
+            <formatter type="brief" usefile="false"/>
+            <formatter type="xml" />
+            <batchtest todir="@{build.reports.dir}/junit/xml">
+               <fileset dir="@{build.test.classes.dir}"/>
+            </batchtest>
+         </junit>
+         <junitreport todir="@{build.reports.dir}/junit/xml">
+            <fileset dir="@{build.reports.dir}/junit/xml">
+               <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="@{build.reports.dir}/junit"/>
+         </junitreport> 
+      </sequential>
+   </macrodef>
+   <macrodef name="common.test.cobertura">
+      <attribute name="build.dir" default="build"/>
+      <attribute name="build.src.dir" default="build/src"/>
+      <attribute name="build.classes.dir" default="build/classes"/>
+      <attribute name="build.test.src.dir" default="build/testSrc"/>
+      <attribute name="build.test.classes.dir" default="build/testClasses"/>
+      <attribute name="build.lib.dir" default="build/lib"/>
+      <attribute name="build.reports.dir" default="build/reports"/>
+      <attribute name="build.cobertura.instrumented.dir" default="build/cobertura"/>
+      <attribute name="cobertura.dir" />
+      <attribute name="log4jFileName" />
+      <sequential>
+         <!-- create build.reports.dir/cobertura/**.* if !exists -->
+         <mkdir dir="@{build.reports.dir}"/>
+         <mkdir dir="@{build.reports.dir}/cobertura"/>
+         <mkdir dir="@{build.reports.dir}/cobertura/xml"/>
+         <mkdir dir="@{build.reports.dir}/cobertura/junit"/>
+         <mkdir dir="@{build.reports.dir}/cobertura/junit/xml"/>
+         <!-- create build.cobertura.instrumented.dir if !exists -->
+         <mkdir dir="@{build.cobertura.instrumented.dir}"/>
+         
+         <path id="cobertura.classpath">
+            <fileset dir="@{cobertura.dir}">
+               <include name="cobertura.jar" />
+               <include name="lib/**.*.jar" />
+            </fileset>
+            <fileset dir="@{build.lib.dir}">
+               <include name="@{log4jFileName}" />
+            </fileset>
+         </path>
+         <taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
+         <cobertura-instrument todir="@{build.cobertura.instrumented.dir}" datafile="@{build.dir}/cobertura.ser">
+            <ignore regex="org.apache.log4j.*" />
+            <fileset dir="@{build.classes.dir}" />
+         </cobertura-instrument>
+         <junit failureProperty="test.failed" printsummary="yes" haltonfailure="yes" showoutput="true" dir="@{build.test.src.dir}" fork="yes">
+            <!-- specify the name of the coverage data file to use. -->
+            <sysproperty key="net.sourceforge.cobertura.datafile" file="@{build.dir}/cobertura.ser" />
+            
+            <!-- classpath order: instrumented classes must be before the original (uninstrumented) classes. -->
+            <classpath>
+               <pathelement location="@{build.cobertura.instrumented.dir}" />
+               <pathelement location="@{build.test.src.dir}" />
+               <pathelement location="@{build.dir}" />
+               <pathelement location="@{build.classes.dir}"/>
+               <pathelement location="@{build.test.classes.dir}"/>
+               <fileset dir="@{build.lib.dir}">
+                  <include name="*.jar"/>
+               </fileset>
+               <fileset dir="@{cobertura.dir}">
+                  <include name="cobertura.jar" />
+                  <include name="lib/**.*.jar" />
+               </fileset>
+            </classpath>
+            
+            <formatter type="xml" />
+            
+            <batchtest todir="@{build.reports.dir}/cobertura/junit/xml">
+               <fileset dir="@{build.test.classes.dir}"/>
+            </batchtest>
+            
+         </junit>
+         
+         <cobertura-report format="xml" destdir="@{build.reports.dir}/cobertura/xml" datafile="@{build.dir}/cobertura.ser" srcdir="@{build.src.dir}" />
+         <cobertura-report format="html" destdir="@{build.reports.dir}/cobertura" datafile="@{build.dir}/cobertura.ser" srcdir="@{build.src.dir}" />
+         
+      </sequential>
+   </macrodef>
+   <macrodef name="common.test.emma">
+      <attribute name="build.dir" default="build"/>
+      <attribute name="build.src.dir" default="build/src"/>
+      <attribute name="build.classes.dir" default="build/classes"/>
+      <attribute name="build.test.src.dir" default="build/testSrc"/>
+      <attribute name="build.test.classes.dir" default="build/testClasses"/>
+      <attribute name="build.lib.dir" default="build/lib"/>
+      <attribute name="build.reports.dir" default="build/reports"/>
+      <attribute name="build.emma.instrumented.dir" default="build/emma"/>
+      <attribute name="emma.dir" />
+      <attribute name="log4jFileName" />
+      <sequential>
+         <!-- create build.reports.dir/junit if !exists -->
+         <mkdir dir="@{build.reports.dir}"/>
+         <mkdir dir="@{build.reports.dir}/emma"/>
+         <mkdir dir="@{build.reports.dir}/emma/xml"/>
+         <mkdir dir="@{build.reports.dir}/emma/txt"/>
+         <mkdir dir="@{build.reports.dir}/emma/junit"/>
+         <mkdir dir="@{build.reports.dir}/emma/junit/xml"/>
+         <mkdir dir="@{build.emma.instrumented.dir}"/>
+         
+         <path id="emma.classpath">
+            <fileset dir="@{emma.dir}">
+               <include name="lib/emma.jar" />
+               <include name="lib/emma_ant.jar" />
+            </fileset>
+         </path>
+         <path id="emma.coverage.include.classpath">
+            <pathelement location="@{build.src.dir}"/>
+         </path>
+         <path id="emma.instrumented.classpath">
+            <pathelement location="@{build.emma.instrumented.dir}"/>
+         </path>
+         <taskdef classpathref="emma.classpath" resource="emma_ant.properties" />
+         <emma enabled="true" verbosity="verbose">
+            <instr instrpath="@{build.classes.dir}" destdir="@{build.emma.instrumented.dir}" mode="copy" metadatafile="@{build.reports.dir}/emma/metadata.emma" merge="true"/>
+         </emma>
+         <junit failureProperty="test.failed" printsummary="yes" haltonfailure="yes" showoutput="true" dir="@{build.test.src.dir}" fork="yes">
+            
+            <jvmarg value="-Demma.coverage.out.file=../../@{build.reports.dir}/emma/coverage.emma"/>
+            <jvmarg value="-Demma.coverage.out.merge=true"/>
+            
+            <batchtest fork="yes" todir="@{build.reports.dir}/emma/junit/xml">
+               <fileset dir="@{build.test.classes.dir}">
+                  <include name="**/*Test.class" />
+               </fileset>
+            </batchtest>
+            <formatter type="xml"/>
+            <classpath>
+               <pathelement location="@{build.emma.instrumented.dir}" />
+               <pathelement location="@{build.classes.dir}"/>
+               <pathelement location="@{build.test.src.dir}" />
+               <pathelement location="@{build.test.classes.dir}"/>
+               <pathelement location="@{build.dir}" />
+               <fileset dir="@{emma.dir}">
+                  <include name="lib/emma.jar" />
+                  <include name="lib/emma_ant.jar" />
+               </fileset>
+               <fileset dir="@{build.lib.dir}">
+                  <include name="*.jar" />
+               </fileset>
+            </classpath>
+
+         </junit>
+         
+         <emma enabled="true" verbosity="verbose">
+            <report sourcepath="@{build.src.dir}, @{build.test.src.dir}" sort="+class,+line,+method,+block,+name" metrics="method:70,block:80,line:80,class:100">
+               <fileset dir="@{build.reports.dir}/emma">
+                  <include name="*.emma"/>
+                  <include name="*.es"/>
+               </fileset>
+               <txt outfile="@{build.reports.dir}/emma/txt/emmaCoverage.txt" depth="package"/>
+               <xml outfile="@{build.reports.dir}/emma/xml/emmaCoverage.xml" depth="package"/>
+               <html outfile="@{build.reports.dir}/emma/emmaCoverage.html" columns="name,class,method,block,line"/>
+            </report>
+         </emma>
+      </sequential>
+   </macrodef>
+</project>

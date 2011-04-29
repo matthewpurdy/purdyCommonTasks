@@ -1,0 +1,5 @@
+.DS_Store
+bin
+build
+build2.xml
+out
