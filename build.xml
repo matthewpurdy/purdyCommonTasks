@@ -9,58 +9,12 @@
       <common.clean />
    </target>
    
-   <target name="compile">
-      <common.compile />
-   </target>
-   
-   <target name="groovyDocs">
-      <common.groovyDocs />
-   </target>
-	
-   <target name="javaDocs">
-      <common.javaDocs />
-   </target>
-   
    <target name="buildAll">
       <common.clean />
       <common.compile />
-   	<common.javaDocs />
       <common.groovyDocs />
+      <common.javaDocs />
       <common.jarArtifact artifactName="${artifactName}" />
-   </target>
-   
-   <target name="testCompile">
-      <common.clean />
-      <common.compile />
-      <common.test.compile />
-   </target>
-   
-   <target name="junit">
-      <common.clean />
-      <common.compile />
-      <common.test.compile />
-      <common.test.junit />
-   </target>
-   
-   <target name="testAllCobertura">
-      <common.clean />
-      <common.compile />
-      <common.test.compile />
-      <common.test.junit />
-      <common.test.cobertura cobertura.dir="${cobertura.dir}" log4jFileName="log4j-1.2.16.jar" />
-   </target>
-   
-   <target name="testAllEmma">
-      <common.clean />
-      <common.compile />
-      <common.test.compile />
-      <common.test.junit />
-      <common.test.emma emma.dir="${emma.dir}" log4jFileName="log4j-1.2.16.jar" />
-   </target>
-   
-   <target name="testAll">
-      <common.clean />
-      <common.compile />
       <common.test.compile />
       <common.test.junit />
       <common.test.cobertura cobertura.dir="${cobertura.dir}" log4jFileName="log4j-1.2.16.jar" />
