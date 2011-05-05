@@ -17,8 +17,8 @@
       <common.jarArtifact artifactName="${artifactName}" />
       <common.test.compile />
       <common.test.junit />
-      <common.test.cobertura cobertura.dir="${cobertura.dir}" log4jFileName="log4j-1.2.16.jar" />
-      <common.test.emma emma.dir="${emma.dir}" log4jFileName="log4j-1.2.16.jar" />
+      <common.test.cobertura cobertura.dir="${cobertura.dir}" log4jFileName="log4j-${log4jJar.version}.jar" />
+      <common.test.emma emma.dir="${emma.dir}" log4jFileName="log4j-${log4jJar.version}.jar" />
    </target>
    
 </project>
