@@ -7,12 +7,31 @@ purdyCommonTask is an ant macro file use to help create a quick build system usi
 6) cobertura
 
 
-the source code and test code is here just to demostrate it.  the three files you need to put in your project are:
+the source code and test code is here just to demonstrate it.  the three files you need to put in your project are:
 1) build.properties
 2) build.xml
 3) purdyCommonTasks.xml
 
-modify build.properties for your system
+modify build.properties for your system settings
 
 run ant
+
+you can also added the build.gradle to your project, which is used to download from maven the dependencies and put in the 
+lib directory.  this way there is no need to store jar file in git (note: jar files are in this git repo for demo purposes only)
+
+run gradle updateLibs
+
+
+to run all of this you need the following software:
+1) Java 6 or greater
+2) Gradle 1.x or greater
+3) Ant 1.7.x or greater
+4) Emma 2.0.5312 or greater
+6) Cobertura 1.9.4.1 or greater
+
+
+once you build a project
+1) copy all 4 files above in the root of the project (assumes a non-maven style project)
+2) run gradle updateLibs
+3) run ant
 

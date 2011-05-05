@@ -65,15 +65,6 @@
          <jar jarfile="@{build.artifacts.dir}/@{artifactName}.jar" basedir="@{build.classes.dir}" />
       </sequential>
    </macrodef>
-   <macrodef name="common.log4j">
-      <attribute name="log4jPath"/>
-      <attribute name="build.lib.dir" default="build/lib"/>
-      <sequential>
-         <echo>Copying log4j.xml from [@{log4jPath}] into [@{build.lib.dir}]</echo>
-         <!-- copy log4j.xml from log4jPath into build.src.dir -->
-         <copy file="@{log4jPath}" tofile="@{build.lib.dir}/log4j.xml" overwrite="true" />
-      </sequential>
-   </macrodef>
    <macrodef name="common.groovyDocs">
       <attribute name="build.src.dir" default="build/src"/>
       <attribute name="build.groovyDocs.dir" default="build/groovyDocs"/>
@@ -82,10 +73,6 @@
          <!-- create build.groovyDocs.dir if !exists -->
          <mkdir dir="@{build.groovyDocs.dir}"/>
          <groovydoc packagenames="@{packageNames}" destdir="@{build.groovyDocs.dir}" sourcepath="@{build.src.dir}" use="true" private="true">
-            <link packages="java.,org.xml.,javax.,org.xml." href="http://java.sun.com/j2se/1.6.0/docs/api"/>
-            <link packages="org.apache.ant.,org.apache.tools.ant." href="http://www.dpml.net/api/ant/1.7.0"/>
-            <link packages="org.junit.,junit.framework." href="http://unit.sourceforge.net/javadoc/"/>
-            <link packages="groovy.,org.codehaus.groovy." href="http://groovy.codehaus.org/api/"/>
          </groovydoc>
       </sequential>
    </macrodef>
